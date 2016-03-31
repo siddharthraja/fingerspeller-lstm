@@ -66,7 +66,7 @@ namespace Microsoft.Samples.Kinect.DiscreteGestureBasics
             }
             string filename = current_phrase + "_depth_" + image_count + ".bytes";
             image_count++;
-            string filePath = @"D:\z-fingerspelling-data\" + current_phrase + "\\" + session_number + "\\depth\\" + filename;
+            string filePath = MainWindow.dataStoragePath + "\\" + current_phrase + "\\" + session_number + "\\depth\\" + filename;
 
             await WriteTextAsync(filePath, b);
         }
