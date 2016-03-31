@@ -70,7 +70,8 @@ namespace Microsoft.Samples.Kinect.DiscreteGestureBasics
 
         private string[] phrase_list = 
         {
-            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+            //"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+            "the", "and", "for", "that", "by", "this", "with", "you", "not", "are", "from", "your", "all", "have", "new", "more", "was", "will", "home", "can"
         };
 
         private int current_phrase_index = 0;
@@ -201,15 +202,22 @@ namespace Microsoft.Samples.Kinect.DiscreteGestureBasics
             }
             String cleanedPhrase = builder.ToString().TrimEnd(new char[] { ' ' });
             */
-            String cleanedPhrase = current_phrase + ".png";
-            //Console.WriteLine("!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + cleanedPhrase);
+            char[] phraseLetters = current_phrase.ToCharArray();
+            Image[] phraseImageBoxes = { phraseImage1, phraseImage2, phraseImage3, phraseImage4 };
+            int phraseImageBoxCount = 0;
+            foreach (char c in phraseLetters)
+            {
+                string current_letter = "" + c;
+                string cleanedPhrase = current_letter + ".png";
+                //Console.WriteLine("!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + cleanedPhrase);
 
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(System.IO.Path.Combine(
-                @"C:\Users\ASLR\Documents\GitHub\fingerspeller-lstm\phrase-sampler-2.0\phrase_images", cleanedPhrase));
-            image.EndInit();
-            phraseImage.Source = image;
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(System.IO.Path.Combine(
+                    @"C:\Users\ASLR\Documents\GitHub\fingerspeller-lstm\phrase-sampler-2.0\phrase_images", cleanedPhrase));
+                image.EndInit();
+                phraseImageBoxes[phraseImageBoxCount++].Source = image;
+            }
 
             phrase_name = phrase_list[current_phrase_index];
             /*clientInterface.sendData("new_phrase");
@@ -854,15 +862,24 @@ namespace Microsoft.Samples.Kinect.DiscreteGestureBasics
                 builder.Append(s.ToLower()).Append(" ");
             }
             String cleanedPhrase = builder.ToString().TrimEnd(new char[] { ' ' });*/
-            String cleanedPhrase = current_phrase + ".png";
-            //Console.WriteLine("!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + cleanedPhrase);
+            char[] phraseLetters = current_phrase.ToCharArray();
+            Image[] phraseImageBoxes = { phraseImage1, phraseImage2, phraseImage3, phraseImage4 };
+            phraseImage3.Source = null;
+            phraseImage4.Source = null;
+            int phraseImageBoxCount = 0;
+            foreach (char c in phraseLetters)
+            {
+                string current_letter = "" + c;
+                string cleanedPhrase = current_letter + ".png";
+                //Console.WriteLine("!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + cleanedPhrase);
 
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri(System.IO.Path.Combine(
-                @"C:\Users\ASLR\Documents\GitHub\fingerspeller-lstm\phrase-sampler-2.0\phrase_images", cleanedPhrase));
-            image.EndInit();
-            phraseImage.Source = image;
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(System.IO.Path.Combine(
+                    @"C:\Users\ASLR\Documents\GitHub\fingerspeller-lstm\phrase-sampler-2.0\phrase_images", cleanedPhrase));
+                image.EndInit();
+                phraseImageBoxes[phraseImageBoxCount++].Source = image;
+            }
 
             session_number = 1;
             mainDir = System.IO.Path.Combine(dataStoragePath, phrase_name);

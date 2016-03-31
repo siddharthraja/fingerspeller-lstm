@@ -13,12 +13,12 @@ namespace ImageFileConvertor
     {
         static void Main(string[] args)
         {
-            String[] alphabet = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "y", "z" };
+            String[] alphabet = { "a"};//, "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "y", "z" };
             foreach (string ss in alphabet)
             {
                 Console.WriteLine("############################# "+ss);
             
-                string directoryName = "D:\\z-fingerspelling-data\\"+ss+"\\2";
+                string directoryName = "D:\\z-fingerspelling-data\\"+ss+"\\1";
                 string colorDirectory = Path.Combine(directoryName, "color");
                 string depthDirectory = Path.Combine(directoryName, "depth");
                 string[] colorFilesList = Directory.GetFiles(colorDirectory);
