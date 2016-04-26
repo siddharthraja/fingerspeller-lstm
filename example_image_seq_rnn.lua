@@ -8,8 +8,8 @@ require 'rnn'
 -- data parameters
 --
 
-local width = 224
-local height= 224
+local width = 64
+local height= 64
 local channels = 3
 
 
@@ -68,8 +68,8 @@ local criterion = nn.ClassNLLCriterion()
 --TODO this is just a few linear layers for now, replace with convolutional
 local input_model = nn:Sequential()
 :add(nn.Reshape(width*height*channels))
-:add(nn.Linear(width*height*channels, width*height*channels))
-:add(nn.Linear(width*height*channels, n_classes))
+:add(nn.Linear(4096, 4096))
+:add(nn.Linear(4096, n_classes))
 
 local feedback_module = nn.Linear(1, rho)
 local transfer = nn.Sigmoid()
@@ -82,11 +82,12 @@ local r = nn.Recurrent(hidden_size,
                 rho
                 )
 
-local rnn = nn.sequential()
 
-rnn:add(nn.LookupTable(nIndex, hidden_size))
+local rnn = nn.Sequential()
+
+rnn:add(nn.LookupTable(rho, hidden_size))
 rnn:add(nn:SplitTable(1,2))
-rnn:add(nn:Sequencer(r))
+rnn:add(nn.Sequencer(r))
 rnn:add(nn.SelectTable(-1))
 rnn:add(nn.Linear(hidden_size, n_classes))
 rnn:add(nn.LogSoftMax())
@@ -97,7 +98,7 @@ local train_logger = optim.Logger('train.log')
 local indices = torch.LongTensor(batch_size)
 local data, labels = torch.Tensor(batch_size), torch.Tensor(batch_size)
 
-for iteration 1, epochs do
+for iteration=1, epochs do
     indices:random(1, batch_size)
     data:index(train_data, 1, indices)
     labels:index(train_labels, 1, indices)
