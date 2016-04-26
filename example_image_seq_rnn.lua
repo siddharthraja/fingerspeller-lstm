@@ -37,7 +37,7 @@ local function load_data(datafile, n_images, channels, width, height)
 
     --FIXME this assumes a sequence length of 3 btw
     for k, v in pairs(lines) do
-        local image_1, image_2, image_3, class = v:match("([^ ]+) ([^ ]+)")
+        local image_1, image_2, image_3, class = v:match("([^ ]+) ([^ ]+) ([^ ]+) ([^ ]+)")
         sequences[k][1] = image.scale(image.load(image_1, channels), width, height)
         sequences[k][2] = image.scale(image.load(image_2, channels), width, height)
         sequences[k][3] = image.scale(image.load(image_3, channels), width, height)
