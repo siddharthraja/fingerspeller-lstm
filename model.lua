@@ -44,25 +44,33 @@ lstm:add(nn.LookupTable(rho, hidden_size))
 lstm:add(nn.Sequencer(r))
 lstm:add(nn.SelectTable(-1))
 
-
 sequence_model:add(lstm)
 sequence_model.modules[#sequence_model.modules] = nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax())
 
 local train_data = data.data[1]
 local train_labels = data.data[2]
-local test_data = data.data[3]
-local test_labels = data.data[4]
+local test_data = data.test_data[1]
+local test_labels = data.test_data[2]
 
 local indices = torch.LongTensor(batch_size)
+local test_set_size = 14
+local test_indices = torch.LongTensor(test_set_size)
 local data, labels = torch.Tensor(batch_size), torch.Tensor(batch_size)
 
 local total_valid = 0
-local total_counted =0
+local total_counted = 0
+local test_batch, test_label_batch = torch.Tensor(batch_size), torch.Tensor(batch_size)
+
+local outplotter = optim.Logger('out.log')
 
 for iteration=1, epochs do
-    indices:random(1, batch_size)
+    indices:random(1, n_classes)
     data:index(train_data, 1, indices)
     labels:index(train_labels, 1, indices)
+    
+    test_indices:random(1, 100)
+    test_batch:index(test_data, 1, test_indices)
+    test_label_batch:index(test_labels, 1, test_indices) 
 
     sequence_model:zeroGradParameters()
 
@@ -70,23 +78,34 @@ for iteration=1, epochs do
     local err = criterion:forward(outputs, labels)
 
     local outstr = string.format("NLL err= %f", err)
-
-    print(outstr)
-    local temp =0
-    local argmax =0
-    for i= 1, batch_size do
-        temp, argmax = torch.max(outputs[i], 1)
-        if argmax[1] == labels[i] then
-            total_valid = total_valid + 1.0
-        end
-        total_counted = total_counted + 1.0
-    end
-    
-    print(string.format('mean class accuracy (train): %f', total_valid/total_counted * 100))
-
     local gradOutputs = criterion:backward(outputs, labels)
     local gradInputs = sequence_model:backward(data, gradOutputs)
 
     sequence_model:updateParameters(lr)
+    -- end of training step
+
+    -- Logging and plotting classifier output
+    print(outstr)
+    local train_acc =0
+    local temp =0 
+    local argmax =0 for i= 1, batch_size do temp, argmax = torch.max(outputs[i], 1)        if argmax[1] == labels[i] then total_valid = total_valid + 1.0
+        end total_counted = total_counted + 1.0 
+    train_acc = total_valid / total_counted
+    end
+    local test_acc = train_acc
+    local test_counted = 0
+    local test_output = sequence_model:forward(test_batch)
+    local test_max = 0
+    for i=1, test_set_size do temp, argmax = torch.max(test_output[i], 1)
+        if argmax[1] == test_label_batch[i] then test_counted = test_counted + 1.0
+        end test_max = test_max + 1.0 
+    test_acc = (test_acc + (test_counted / test_max))/2.0
+    end
+    print(string.format('mean class accuracy (train): %f', train_acc * 100))
+    print(string.format('mean class accuracy (test): %f',  test_acc * 100))
+    outplotter:add{['Train accuracy']=train_acc, ['Test accuracy']=test_acc}
+    outplotter:style{['Train accuracy']='-'}
+    outplotter:style{['Test accuracy']='-'}
+    outplotter:plot()
 end
 
