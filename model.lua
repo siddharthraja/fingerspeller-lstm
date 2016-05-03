@@ -25,7 +25,7 @@ local learning_rate = .001
 
 local criterion = nn.ClassNLLCriterion()
 
-local input_model = nn:Sequential()
+local sequence_model = nn:Sequential()
 :add(nn.SpatialConvolutionMM(3, 16, 5, 5))
 :add(nn.ReLU())
 :add(nn.SpatialMaxPooling(4,4))
@@ -40,11 +40,11 @@ local transfer = nn.Sigmoid()
 
 local stepmodule = nn.Sequential()
 local r = nn.FastLSTM(lstm_input_size, n_classes)
-
 lstm:add(nn.LookupTable(rho, hidden_size))
 lstm:add(nn.Sequencer(r))
 lstm:add(nn.SelectTable(-1))
-input_model:add(nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax()))
+
+sequence_model:add(nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax()))
 
 local train_data = data.data[1]
 local train_labels = data.data[2]
@@ -54,7 +54,6 @@ local test_labels = data.data[4]
 local indices = torch.LongTensor(batch_size)
 local data, labels = torch.Tensor(batch_size), torch.Tensor(batch_size)
 
-
 local total_valid = 0
 local total_counted =0
 
@@ -63,9 +62,9 @@ for iteration=1, epochs do
     data:index(train_data, 1, indices)
     labels:index(train_labels, 1, indices)
 
-    input_model:zeroGradParameters()
+    sequence_model:zeroGradParameters()
 
-    local outputs = input_model:forward(data)
+    local outputs = sequence_model:forward(data)
     local err = criterion:forward(outputs, labels)
 
     local outstr = string.format("NLL err= %f", err)
@@ -84,8 +83,8 @@ for iteration=1, epochs do
     print(string.format('mean class accuracy (train): %f', total_valid/total_counted * 100))
 
     local gradOutputs = criterion:backward(outputs, labels)
-    local gradInputs = input_model:backward(data, gradOutputs)
+    local gradInputs = sequence_model:backward(data, gradOutputs)
 
-    input_model:updateParameters(lr)
+    sequence_model:updateParameters(lr)
 end
 
