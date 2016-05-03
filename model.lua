@@ -64,11 +64,11 @@ local test_batch, test_label_batch = torch.Tensor(batch_size), torch.Tensor(batc
 local outplotter = optim.Logger('out.log')
 
 for iteration=1, epochs do
-    indices:random(1, n_classes)
+    indices:random(1, batch_size)
     data:index(train_data, 1, indices)
     labels:index(train_labels, 1, indices)
     
-    test_indices:random(1, 100)
+    test_indices:random(1, 80)
     test_batch:index(test_data, 1, test_indices)
     test_label_batch:index(test_labels, 1, test_indices) 
 
