@@ -11,5 +11,5 @@ We use Google Incpetion architecture to achieve this. The main library used here
 We use a residual network for this. This is implemented in TensorFlow again.
 
 ## Demo Run
-### th model.lua
-This will do a sample run for a chunked data set consisting of a sequence of hand iamges. Make sure to unzip the hand_images.zip file before running this command.
+#### th model.lua
+This will do a sample run for a chunked data set consisting of a sequence length of 5. Make sure to unzip the hand_images.zip file before running this command.
