@@ -62,7 +62,7 @@ local total_counted = 0
 local test_batch, test_label_batch = torch.Tensor(batch_size), torch.Tensor(batch_size)
 
 local outplotter = optim.Logger('out.log')
-
+test_acc = 0--(test_acc + (test_counted / test_max))/2.0
 for iteration=1, epochs do
     indices:random(1, batch_size)
     data:index(train_data, 1, indices)
@@ -92,15 +92,17 @@ for iteration=1, epochs do
         end total_counted = total_counted + 1.0 
     train_acc = total_valid / total_counted
     end
-    local test_acc = train_acc
+
+    local current_test_acc = 0
     local test_counted = 0
     local test_output = sequence_model:forward(test_batch)
     local test_max = 0
+
     for i=1, test_set_size do temp, argmax = torch.max(test_output[i], 1)
         if argmax[1] == test_label_batch[i] then test_counted = test_counted + 1.0
         end test_max = test_max + 1.0 
-    test_acc = (test_acc + (test_counted / test_max))/2.0
     end
+    test_acc = (test_acc + (test_counted / test_max))/2.0
     print(string.format('mean class accuracy (train): %f', train_acc * 100))
     print(string.format('mean class accuracy (test): %f',  test_acc * 100))
     outplotter:add{['Train accuracy']=train_acc, ['Test accuracy']=test_acc}
