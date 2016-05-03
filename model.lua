@@ -44,7 +44,9 @@ lstm:add(nn.LookupTable(rho, hidden_size))
 lstm:add(nn.Sequencer(r))
 lstm:add(nn.SelectTable(-1))
 
-sequence_model:add(nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax()))
+
+sequence_model:add(lstm)
+sequence_model.modules[#sequence_model.modules] = nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax())
 
 local train_data = data.data[1]
 local train_labels = data.data[2]
