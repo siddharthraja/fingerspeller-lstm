@@ -7,7 +7,7 @@ require 'optim'
 -- load data module
 --
 
-local data, labels, size = require 'data'
+local data = require 'data'
 
 --hyper-parameters
 --
@@ -41,19 +41,22 @@ local transfer = nn.Sigmoid()
 local stepmodule = nn.Sequential()
 local r = nn.FastLSTM(lstm_input_size, n_classes)
 
-local lstn = nn.Sequential()
 lstm:add(nn.LookupTable(rho, hidden_size))
 lstm:add(nn.Sequencer(r))
 lstm:add(nn.SelectTable(-1))
-input_model:add(lstn:add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax()))
-
+input_model:add(nn.Sequential():add(nn.Linear(lstm_input_size, n_classes)):add(nn.LogSoftMax()))
 
 local train_data = data.data[1]
 local train_labels = data.data[2]
+local test_data = data.data[3]
+local test_labels = data.data[4]
 
-local train_logger = optim.Logger('train.log')
 local indices = torch.LongTensor(batch_size)
 local data, labels = torch.Tensor(batch_size), torch.Tensor(batch_size)
+
+
+local total_valid = 0
+local total_counted =0
 
 for iteration=1, epochs do
     indices:random(1, batch_size)
@@ -66,8 +69,19 @@ for iteration=1, epochs do
     local err = criterion:forward(outputs, labels)
 
     local outstr = string.format("NLL err= %f", err)
-    train_logger:add{ ["NLL err "]=err}
+
     print(outstr)
+    local temp =0
+    local argmax =0
+    for i= 1, batch_size do
+        temp, argmax = torch.max(outputs[i], 1)
+        if argmax[1] == labels[i] then
+            total_valid = total_valid + 1.0
+        end
+        total_counted = total_counted + 1.0
+    end
+    
+    print(string.format('mean class accuracy (train): %f', total_valid/total_counted * 100))
 
     local gradOutputs = criterion:backward(outputs, labels)
     local gradInputs = input_model:backward(data, gradOutputs)
